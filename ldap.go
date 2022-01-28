@@ -1,14 +1,36 @@
 package main
 
 import (
-	//"crypto/tls"
 	"crypto/x509/pkix"
+	"fmt"
 	ldap "github.com/go-ldap/ldap"
 	"log"
+	"strings"
+	"sync"
+	"time"
 )
 
-func getGroups(sub pkix.Name) (ret []string) {
-	ret = []string{}
+type ldapGroups struct {
+	groups []string
+	query  time.Time
+}
+
+var ldapCache = make(map[string]ldapGroups)
+var ldapCacheLock = new(sync.Mutex)
+
+func getGroups(sub pkix.Name) []string {
+	dn := sub.String() //strings.ReplaceAll(sub.String(), "\\,", ",")
+	ret := []string{}
+
+	ldapCacheLock.Lock()
+	if entry, ok := ldapCache[dn]; ok {
+		if time.Now().Sub(entry.query) < time.Hour {
+			ldapCacheLock.Unlock()
+			return entry.groups
+		}
+	}
+	ldapCacheLock.Unlock()
+
 	l, err := ldap.DialURL(*ldapServer)
 	if err != nil {
 		log.Fatal(err)
@@ -21,13 +43,18 @@ func getGroups(sub pkix.Name) (ret []string) {
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
+	myFilt := strings.ReplaceAll(*ldapFilter, "{DN}", dn)
+	myFilt = strings.ReplaceAll(myFilt, "{CN}", sub.CommonName)
+	if debug {
+		fmt.Println("Filter =", myFilt)
+	}
 
 	// Operations are now encrypted
 	searchRequest := ldap.NewSearchRequest(
 		*baseDN, // The base dn to search
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(member="+sub.CommonName+")", // The filter to apply
-		[]string{"dn"},                // A list attributes to retrieve
+		myFilt,         // The filter to apply
+		[]string{"dn"}, // A list attributes to retrieve
 		nil,
 	)
 
@@ -36,12 +63,15 @@ func getGroups(sub pkix.Name) (ret []string) {
 		if debug {
 			log.Println("search error", err)
 		}
-		return
+		return ret
 	}
 
 	for _, entry := range sr.Entries {
 		ret = append(ret, entry.DN)
 		//fmt.Printf("%s: %v\n", entry.DN, entry.GetAttributeValue("cn"))
 	}
+	ldapCacheLock.Lock()
+	ldapCache[dn] = ldapGroups{groups: ret, query: time.Now()}
+	ldapCacheLock.Unlock()
 	return ret
 }

@@ -72,11 +72,11 @@ func main() {
 			"URL to load the certificate revocation list from - reloads when expired\n", "URL")
 		crlBypass = params.Bool("crl-bypass", false, "If the CRL server is unavailable, allow all", "BOOL")
 	}
-	params.GroupingSet("LDAP")
+	params.GroupingSet("LDAP - All queries are cached up to 1 hour")
 	{
 		ldapServer = params.String("ldap-host", "ldaps://ldap.itd.umich.edu:636", "Lookup DN entries", "PROTO://HOST:PORT")
 		baseDN = params.String("basedn", "dc=umich,dc=edu", "BaseDN used to query the LDAP server", "USER")
-		//ldapFilter = params.String("ldap-filter", "(member={DN})", "Filter used for querying LDAP server", "FILTER")
+		ldapFilter = params.String("ldap-filter", "(member={CN})", "Filter used for querying LDAP server", "FILTER")
 	}
 
 	params.CommandLine.Indent = 2

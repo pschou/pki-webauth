@@ -1,7 +1,7 @@
 # PKI Authenticator - A Simple Reverse Proxy Using PKI for Authentication and LDAP for Authorization
 
 I was challenged to develop a lightweight method of providing authentication
-and authorization for webapps that may reside on tiny devices.  This
+and authorization for webapps that may reside on integrated devices.  This
 proof-of-concept type of work shows what is possible with PKI authentication
 and fit within a small footprint.
 
@@ -18,6 +18,14 @@ can be handled externally and presented to the underlying webapp.
 * If you desire two-factor authentication, such as PKI certificate (and pin)
 * If you want to ensure each person is associated with the proper group in the
   application behind this authentication reverse proxy
+
+# Comparing PKI to tokens:
+* Tokens are issued and maintained by a central token issuing server 
+* PKI use the person’s identity provided by the certificate and the reverse proxy maintains the authorization levels needed for the use of that webapp
+* Tokens rely on cookies and are relevant to a user’s session, meaning if a person’s session token is compromised, the attacker can assume the role of that person
+* PKI cards are physical and are locked down once removed from a reader with a PIN.  The act of removing the card locks the smart chip to prevent usage
+* Tokens require back and forth between the authentication server and a webapp
+* PKI with this reverse proxy, is a single connection from the user’s perspective.  Less is more as the user can connect to any resource directly, establish the TLS tunnel encryption, and then with a second handshake, the user’s identity.  If the user is on an open Wi-Fi connection or high latent link, it is one connection, not multiple.
 
 
 
@@ -50,8 +58,9 @@ Certificates options:
   --crl-bypass BOOL        If the CRL server is unavailable, allow all  (Default: false)
   --key FILE               File to load with KEY - automatically reloaded every 15 minutes
                              (Default: "tests/server_key_DONOTUSE.pem")
-LDAP options:
+LDAP - All queries are cached up to 1 hour options:
   --basedn USER            BaseDN used to query the LDAP server  (Default: "dc=umich,dc=edu")
+  --ldap-filter FILTER     Filter used for querying LDAP server  (Default: "(member={CN})")
   --ldap-host PROTO://HOST:PORT  Lookup DN entries  (Default: "ldaps://ldap.itd.umich.edu:636")
 ```
 
@@ -121,3 +130,7 @@ PKIAUTH-HANDSHAKE: true
 PKIAUTH-REMOTE: [::1]:40798
 PKIAUTH-RESUME: false
 ```
+=======
+# ToDo
+
+Add full LDAP/LDAPS (TLS and StartTLS) support and choosing the headers to store the PKI and Group details into.
