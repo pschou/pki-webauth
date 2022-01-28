@@ -130,7 +130,3 @@ PKIAUTH-HANDSHAKE: true
 PKIAUTH-REMOTE: [::1]:40798
 PKIAUTH-RESUME: false
 ```
-=======
-# ToDo
-
-Add full LDAP/LDAPS (TLS and StartTLS) support and choosing the headers to store the PKI and Group details into.
