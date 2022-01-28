@@ -1,5 +1,7 @@
 # PKI Authenticator - A Simple Reverse Proxy with LDAP Group Lookups
 
+*** Work in Progress ***
+
 I was challenged to develop a lightweight method of providing authentication
 and authorization for webapps that may reside on tiny devices.  This
 proof-of-concept type of work shows what is possible with PKI authentication
@@ -91,3 +93,7 @@ curl -L -vvv --cacert tests/ca_cert_DONOTUSE.pem --cert tests/npe1_cert_DONOTUSE
 ```
 
 Now watch the output on both terminals handle the connection.  Bo yeah, connection, reverse proxy, and PKI Authentication magic all in package less than 10MB and super portable!
+
+# ToDo
+
+Add full LDAP/LDAPS (TLS and StartTLS) support and choosing the headers to store the PKI and Group details into.
