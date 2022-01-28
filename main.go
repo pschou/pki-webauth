@@ -4,8 +4,6 @@
 //  Originally intended as a light weight PKI authentication module to place in front of any web service
 //    for doing authentication and authorization via mTLS (mutual TLS).
 //
-//  TODO: Add external LDAP Query
-//  TODO: Add headers to be sent to the WebApp
 //
 package main
 
@@ -24,20 +22,21 @@ import (
 )
 
 var (
-	target_addr                              = ""
-	keyFile, certFile, rootFile              *string
-	tls_webapp, verify_webapp, secure_webapp *bool
-	target, tls_host, listen                 *string
-	verify_incoming, secure_incoming         *bool
-	enforce_handshake                        *bool
-	debug                                    = false
-	version                                  = "not set"
+	target_addr                                 = ""
+	keyFile, certFile, rootFile, crlURL         *string
+	tls_webapp, verify_webapp, secure_webapp    *bool
+	target, tls_host, listen                    *string
+	verify_incoming, secure_incoming, crlBypass *bool
+	enforce_handshake                           *bool
+	ldapServer, baseDN, ldapFilter              *string
+	debug                                       = false
+	version                                     = "not set"
 )
 
 func main() {
 	params.Usage = func() {
 		_, prog := filepath.Split(os.Args[0])
-		fmt.Fprintf(os.Stderr, "PKI Authenticator, written by Paul Schou (github.com/pschou/pki-ldap-webauth) in January 2022\n"+
+		fmt.Fprintf(os.Stderr, "PKI Authenticator, written by Paul Schou (github.com/pschou/pki-webauth) in January 2022\n"+
 			"All rights reserved, personal use only, provided AS-IS -- not responsible for loss.\n"+
 			"Usage implies agreement.  Version: %s\n\nUsage: %s [options...]\n\n", version, prog)
 		params.PrintDefaults()
@@ -67,8 +66,17 @@ func main() {
 			"File to load with CERT - automatically reloaded every 15 minutes\n", "FILE")
 		keyFile = params.String("key", filepath.Join("tests", "server_key_DONOTUSE.pem"),
 			"File to load with KEY - automatically reloaded every 15 minutes\n", "FILE")
-		rootFile = params.String("ca", filepath.Join("tests", "ca_cert_DONOTUSE.pem"),
+		rootFile = params.String("ca", filepath.Join("tests", "cacerts_DONOTUSE.pem"),
 			"File to load with ROOT CAs - reloaded every 15 minutes by adding any new entries\n", "FILE")
+		crlURL = params.String("crl", "http://crl3.digicert.com/sha2-ev-server-g1.crl",
+			"URL to load the certificate revocation list from - reloads when expired\n", "URL")
+		crlBypass = params.Bool("crl-bypass", false, "If the CRL server is unavailable, allow all", "BOOL")
+	}
+	params.GroupingSet("LDAP")
+	{
+		ldapServer = params.String("ldap-host", "ldaps://ldap.itd.umich.edu:636", "Lookup DN entries", "PROTO://HOST:PORT")
+		baseDN = params.String("basedn", "dc=umich,dc=edu", "BaseDN used to query the LDAP server", "USER")
+		//ldapFilter = params.String("ldap-filter", "(member={DN})", "Filter used for querying LDAP server", "FILTER")
 	}
 
 	params.CommandLine.Indent = 2
