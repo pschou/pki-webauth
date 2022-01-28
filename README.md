@@ -21,11 +21,14 @@ can be handled externally and presented to the underlying webapp.
 * This reverse proxy blocks Log4j and other user-agent escapes.
 
 # Comparing PKI to tokens:
-* Tokens are issued and maintained by a central token issuing server 
-* PKI use the person’s identity provided by the certificate and the reverse
-  proxy maintains the authorization levels needed for the use of that webapp
+* First and formost: get rid of the dreaded PASSWORDS and updating passwords
+  with PKI tokens!  A huge win for the user.
+* Tokens are issued and maintained by a central token issuing server.  The user
+  browser bounces back and forth between to pick up new tokens and renew tokens.
+* PKI use the person’s identity provided by the PKI certificate and the reverse
+  proxy maintains the authorization levels needed for the use of that webapp.
 * Tokens rely on cookies and are relevant to a user’s session, meaning if a
-  person’s session token is compromised, the attacker can assume the role of
+  person’s session token(s) are compromised, the attacker can assume the role of
 that person
 * PKI cards are physical and are locked down once removed from a reader with a
   PIN.  The act of removing the card locks the smart chip to prevent usage
