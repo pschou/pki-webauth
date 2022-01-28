@@ -18,14 +18,23 @@ can be handled externally and presented to the underlying webapp.
 * If you desire two-factor authentication, such as PKI certificate (and pin)
 * If you want to ensure each person is associated with the proper group in the
   application behind this authentication reverse proxy
+* This reverse proxy blocks Log4j and other user-agent escapes.
 
 # Comparing PKI to tokens:
 * Tokens are issued and maintained by a central token issuing server 
-* PKI use the person’s identity provided by the certificate and the reverse proxy maintains the authorization levels needed for the use of that webapp
-* Tokens rely on cookies and are relevant to a user’s session, meaning if a person’s session token is compromised, the attacker can assume the role of that person
-* PKI cards are physical and are locked down once removed from a reader with a PIN.  The act of removing the card locks the smart chip to prevent usage
+* PKI use the person’s identity provided by the certificate and the reverse
+  proxy maintains the authorization levels needed for the use of that webapp
+* Tokens rely on cookies and are relevant to a user’s session, meaning if a
+  person’s session token is compromised, the attacker can assume the role of
+that person
+* PKI cards are physical and are locked down once removed from a reader with a
+  PIN.  The act of removing the card locks the smart chip to prevent usage
 * Tokens require back and forth between the authentication server and a webapp
-* PKI with this reverse proxy, is a single connection from the user’s perspective.  Less is more as the user can connect to any resource directly, establish the TLS tunnel encryption, and then with a second handshake, the user’s identity.  If the user is on an open Wi-Fi connection or high latent link, it is one connection, not multiple.
+* PKI with this reverse proxy, is a single connection from the user’s
+  perspective.  Less is more as the user can connect to any resource directly,
+establish the TLS tunnel encryption, and then with a second handshake, the
+user’s identity.  If the user is on an open Wi-Fi connection or high latent
+link, it is one connection, not multiple.
 
 
 
