@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"crypto/x509/pkix"
 	"fmt"
 	ldap "github.com/go-ldap/ldap"
@@ -18,7 +19,7 @@ type ldapGroups struct {
 var ldapCache = make(map[string]ldapGroups)
 var ldapCacheLock = new(sync.Mutex)
 
-func getGroups(sub pkix.Name) []string {
+func getGroups(sub pkix.Name) ([]string, error) {
 	dn := sub.String() //strings.ReplaceAll(sub.String(), "\\,", ",")
 	ret := []string{}
 
@@ -26,23 +27,21 @@ func getGroups(sub pkix.Name) []string {
 	if entry, ok := ldapCache[dn]; ok {
 		if time.Now().Sub(entry.query) < time.Hour {
 			ldapCacheLock.Unlock()
-			return entry.groups
+			return entry.groups, nil
 		}
 	}
 	ldapCacheLock.Unlock()
 
-	l, err := ldap.DialURL(*ldapServer)
-	if err != nil {
-		log.Fatal(err)
+	l, err := ldap.DialURL(*ldapServer, ldap.DialWithTLSConfig(
+		&tls.Config{Certificates: []tls.Certificate{*keypair}, RootCAs: rootpool,
+			ClientCAs: rootpool, InsecureSkipVerify: false, ServerName: *tls_host}),
+	)
+	if err != nil && debug {
+		log.Println("LDAP connection error", err)
+		return ret, err
 	}
 	defer l.Close()
 
-	//fmt.Printf("ldap: %+v\n", sub)
-	// Reconnect with TLS
-	//err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 	myFilt := strings.ReplaceAll(*ldapFilter, "{DN}", dn)
 	myFilt = strings.ReplaceAll(myFilt, "{CN}", sub.CommonName)
 	if debug {
@@ -63,7 +62,7 @@ func getGroups(sub pkix.Name) []string {
 		if debug {
 			log.Println("search error", err)
 		}
-		return ret
+		return ret, err
 	}
 
 	for _, entry := range sr.Entries {
@@ -73,5 +72,5 @@ func getGroups(sub pkix.Name) []string {
 	ldapCacheLock.Lock()
 	ldapCache[dn] = ldapGroups{groups: ret, query: time.Now()}
 	ldapCacheLock.Unlock()
-	return ret
+	return ret, nil
 }

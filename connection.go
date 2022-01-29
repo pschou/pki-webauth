@@ -157,7 +157,11 @@ func connection(cli *tls.Conn, outer net.Conn) {
 		cert := conn_state.PeerCertificates[0]
 
 		// return all the groups as a json array
-		jg, _ := json.Marshal(getGroups(cert.Subject))
+		grps, err := getGroups(cert.Subject)
+		jg := []byte("")
+		if err == nil {
+			jg, _ = json.Marshal(grps)
+		}
 
 		webapp_buf.Write(([]byte)(
 			fmt.Sprintf(

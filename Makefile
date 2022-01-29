@@ -11,6 +11,14 @@ build:
 	upx --lzma ${PROG_NAME}_linux32
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_linux64 .
 	upx --lzma ${PROG_NAME}_linux64
+	GOOS=linux GOARCH=arm CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_arm .
+	upx --lzma ${PROG_NAME}_arm
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_arm64 .
+	upx --lzma ${PROG_NAME}_arm64
+	GOOS=linux GOARCH=mips CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_mips .
+	upx --lzma ${PROG_NAME}_mips
+	GOOS=linux GOARCH=mipsle CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_mipsle .
+	upx --lzma ${PROG_NAME}_mipsle
 	GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_win32.exe .
 	upx --lzma ${PROG_NAME}_win32.exe
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags=${FLAGS} -o ${PROG_NAME}_win64.exe .
