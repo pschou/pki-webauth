@@ -75,7 +75,7 @@ func main() {
 	params.GroupingSet("LDAP - All queries are cached up to 1 hour")
 	{
 		ldapServer = params.String("ldap-host", "ldaps://ldap.itd.umich.edu:636", "Lookup DN entries", "PROTO://HOST:PORT")
-		baseDN = params.String("basedn", "dc=umich,dc=edu", "BaseDN used to query the LDAP server", "USER")
+		baseDN = params.String("basedn", "dc=umich,dc=edu", "BaseDN used to query the LDAP server", "STR")
 		ldapFilter = params.String("ldap-filter", "(member={CN})", "Filter used for querying LDAP server", "FILTER")
 	}
 

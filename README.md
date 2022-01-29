@@ -73,7 +73,7 @@ Certificates options:
   --key FILE               File to load with KEY - automatically reloaded every 15 minutes
                              (Default: "tests/server_key_DONOTUSE.pem")
 LDAP - All queries are cached up to 1 hour options:
-  --basedn USER            BaseDN used to query the LDAP server  (Default: "dc=umich,dc=edu")
+  --basedn STR             BaseDN used to query the LDAP server  (Default: "dc=umich,dc=edu")
   --ldap-filter FILTER     Filter used for querying LDAP server  (Default: "(member={CN})")
   --ldap-host PROTO://HOST:PORT  Lookup DN entries  (Default: "ldaps://ldap.itd.umich.edu:636")
 ```
