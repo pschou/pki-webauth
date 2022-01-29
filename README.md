@@ -18,11 +18,13 @@ can be handled externally and presented to the underlying webapp.
 * If you desire two-factor authentication, such as PKI certificate (and pin)
 * If you want to ensure each person is associated with the proper group in the
   application behind this authentication reverse proxy
-* This reverse proxy blocks Log4j and other user-agent escapes.
+* This reverse proxy blocks Log4j and other user-agent escapes by design.
 
 # Comparing PKI to tokens:
-* First and formost: get rid of the dreaded PASSWORDS and updating passwords
-  with PKI tokens!  A huge win for the user.
+* First and foremost: Get rid of the dreaded PASSWORDS!  No passwords and no need
+  to update passwords.  Along with solving the password problem, PKI adds 
+  additional security by being something physical that stays with a person.
+  A huge win for the user (and tech support).
 * Tokens are issued and maintained by a central token issuing server.  The user
   browser bounces back and forth between to pick up new tokens and renew tokens.
 * PKI use the person’s identity provided by the PKI certificate and the reverse
